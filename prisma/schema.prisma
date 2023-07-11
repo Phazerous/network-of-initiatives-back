@@ -1,0 +1,52 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String       @id @default(uuid())
+  name           String
+  lastname       String
+  email          String       @unique
+  password       String
+  dateOfCreation DateTime     @default(now())
+  location       String?
+  university     String?
+  contact        String?
+  about          String?
+  Initiative     Initiative[]
+}
+
+model Initiative {
+  id                String             @id @default(uuid())
+  title             String
+  description       String
+  searching         String
+  location          String
+  university        String?
+  stage             String
+  status            Int                @default(0)
+  dateOfPublication DateTime           @default(now())
+  user              User               @relation(fields: [userId], references: [id])
+  userId            String
+  moderatorComment  String?
+  RoleToInitiative  RoleToInitiative[]
+}
+
+model Role {
+  id               Int                @id @default(autoincrement())
+  name             String
+  RoleToInitiative RoleToInitiative[]
+}
+
+model RoleToInitiative {
+  id           Int        @id @default(autoincrement())
+  initiativeId String
+  roleId       Int
+  initiative   Initiative @relation(fields: [initiativeId], references: [id])
+  role         Role       @relation(fields: [roleId], references: [id])
+}
