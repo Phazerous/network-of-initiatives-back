@@ -92,7 +92,6 @@ export const DocsCreateInitiative = () => {
 
 export const DocsCreateApplication = () => {
   return applyDecorators(
-    ApiCookieAuth()
     ApiOperation({
       description:
         'Applies to an initiative, if succeed returns applicationId.',
