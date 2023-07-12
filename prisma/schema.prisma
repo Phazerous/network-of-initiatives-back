@@ -8,17 +8,19 @@ datasource db {
 }
 
 model User {
-  id             String       @id @default(uuid())
+  id             String        @id @default(uuid())
   name           String
   lastname       String
-  email          String       @unique
+  email          String        @unique
   password       String
-  dateOfCreation DateTime     @default(now())
+  dateOfCreation DateTime      @default(now())
   location       String?
   university     String?
   contact        String?
   about          String?
   Initiative     Initiative[]
+  admin          Admin?
+  Application    Application[]
 }
 
 model Initiative {
@@ -35,6 +37,7 @@ model Initiative {
   userId            String
   moderatorComment  String?
   RoleToInitiative  RoleToInitiative[]
+  Application       Application[]
 }
 
 model Role {
@@ -49,4 +52,22 @@ model RoleToInitiative {
   roleId       Int
   initiative   Initiative @relation(fields: [initiativeId], references: [id])
   role         Role       @relation(fields: [roleId], references: [id])
+}
+
+model Admin {
+  id     Int    @id @default(autoincrement())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id])
+}
+
+model Application {
+  id                String     @id @default(uuid())
+  about             String
+  dateOfPublication DateTime   @default(now())
+  answer            String?
+  status            Int        @default(0)
+  applierId         String
+  initiativeId      String
+  initiative        Initiative @relation(fields: [initiativeId], references: [id])
+  applier           User       @relation(fields: [applierId], references: [id])
 }

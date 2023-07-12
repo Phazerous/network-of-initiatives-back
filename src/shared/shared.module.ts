@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { JwtStrategy } from 'src/auth/jwt.strategy';
 import { PrismaService } from 'src/prisma.service';
 
 @Module({

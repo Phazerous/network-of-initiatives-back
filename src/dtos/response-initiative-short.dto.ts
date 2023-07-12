@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class ResponseInitiativeShortDto {
   @ApiProperty({ example: 'Nexus Initiative' })
@@ -30,8 +30,8 @@ export class ResponseInitiativeShortDto {
   })
   dateOfPublication: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     example: ['DevOps', 'FullStack', 'Productivity Consultant'],
   })
-  roles: string[];
+  roles?: string[];
 }

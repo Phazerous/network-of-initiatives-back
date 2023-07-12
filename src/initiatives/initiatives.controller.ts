@@ -1,57 +1,80 @@
-import { Controller, Get, Param } from '@nestjs/common';
-import { InitiativesService } from './initiatives.service';
 import {
-  ApiNotFoundResponse,
-  ApiOkResponse,
-  ApiOperation,
-} from '@nestjs/swagger';
-import { ResponseInitiativesShortDto } from 'src/dtos/response-initiatives-short.dto';
-import { ResponseInitiativeShortDto } from 'src/dtos/response-initiative-short.dto';
-import { ResponseNotFoundDto } from 'src/dtos/response-not-found.dto';
-import { ResponseGetInitiativeDto } from 'src/dtos/response-get-initiative.dto';
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Request,
+  UseGuards,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
+import { InitiativesService } from './initiatives.service';
+import { CreateInitiativeDto } from 'src/dtos/create-initiative.dto';
+import UserAuthProps from 'src/auth/user-auth.interface';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import CreateApplicationDto from 'src/dtos/create-application.dto';
+import {
+  DocsCreateApplication,
+  DocsCreateInitiative,
+  DocsGetInitiative,
+  DocsGetInitiativeShort,
+  DocsGetInitiatives,
+} from 'src/docs/docs';
 
 @Controller('initiatives')
 export class InitiativesController {
   constructor(private initiativeService: InitiativesService) {}
 
-  //#region getInitiatives
   @Get()
-  @ApiOperation({ description: 'Retrieves the short of initiatives' })
-  @ApiOkResponse({
-    description: 'Succesful response',
-    type: ResponseInitiativesShortDto,
-    isArray: true,
-  })
+  @DocsGetInitiatives()
   async getInitiatives() {
     return await this.initiativeService.getInitiativesShort();
   }
-  //#endregion
-  //#region getInitiativeShortById
+
   @Get(':initiativeId/short')
-  @ApiOperation({
-    description: 'Retrieves the short form of the provided initiative.',
-  })
-  @ApiOkResponse({
-    description: 'Succesfull response',
-    type: ResponseInitiativeShortDto,
-  })
-  @ApiNotFoundResponse({ description: 'Not found', type: ResponseNotFoundDto })
+  @DocsGetInitiativeShort()
   async getInitiativeShortById(@Param('initiativeId') initiativeId: string) {
     return await this.initiativeService.getInitiativeShortById(initiativeId);
   }
-  //#endregion
-  //#region getInitiativeById
+
   @Get(':initiativeId/full')
-  @ApiOperation({
-    description: 'Retrieves the full form of the provided initiative.',
-  })
-  @ApiOkResponse({
-    description: 'Succesfull response',
-    type: ResponseGetInitiativeDto,
-  })
-  @ApiNotFoundResponse({ description: 'Not found', type: ResponseNotFoundDto })
+  @DocsGetInitiative()
   async getInitiativeById(@Param('initiativeId') initiativeId: string) {
     return await this.initiativeService.getInitiativeShortById(initiativeId);
   }
-  //#endregion
+
+  @Post('new')
+  @UseGuards(JwtAuthGuard)
+  @UsePipes(new ValidationPipe())
+  @DocsCreateInitiative()
+  async createInitiative(
+    @Request() req: any,
+    @Body() createInitiativeDto: CreateInitiativeDto,
+  ) {
+    const user = req.user as UserAuthProps;
+
+    return await this.initiativeService.createInitiative(
+      user.userId,
+      createInitiativeDto,
+    );
+  }
+
+  @Post(':initiativeId/apply')
+  @UseGuards(JwtAuthGuard)
+  @UsePipes(new ValidationPipe())
+  @DocsCreateApplication()
+  async createApplication(
+    @Param('initiativeId') initiativeId: string,
+    @Request() req: any,
+    @Body() createApplicationDto: CreateApplicationDto,
+  ) {
+    const user = req.user as UserAuthProps;
+
+    return await this.initiativeService.applyToInitiative(
+      user.userId,
+      initiativeId,
+      createApplicationDto,
+    );
+  }
 }

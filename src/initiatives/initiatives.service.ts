@@ -1,4 +1,11 @@
-import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  Inject,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
+import CreateApplicationDto from 'src/dtos/create-application.dto';
+import { CreateInitiativeDto } from 'src/dtos/create-initiative.dto';
 import { PrismaService } from 'src/prisma.service';
 
 @Injectable()
@@ -94,5 +101,59 @@ export class InitiativesService {
     delete transformedInitiative.RoleToInitiative;
 
     return transformedInitiative;
+  }
+
+  async createInitiative(
+    userId: string,
+    createInitiativeDto: CreateInitiativeDto,
+  ) {
+    const initiative = await this.prisma.initiative.create({
+      data: {
+        ...createInitiativeDto,
+        user: { connect: { id: userId } },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    return initiative.id;
+  }
+
+  async applyToInitiative(
+    applierId: string,
+    initiativeId: string,
+    createApplicationDto: CreateApplicationDto,
+  ) {
+    const initiative = await this.prisma.initiative.findUnique({
+      where: { id: initiativeId },
+      include: {
+        Application: {
+          where: { id: applierId },
+        },
+        user: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+
+    if (!initiative) throw new NotFoundException();
+    if (initiative.user.id === applierId) throw new ForbiddenException();
+    if (initiative.Application.length !== 0) throw new ForbiddenException();
+
+    const application = await this.prisma.application.create({
+      data: {
+        ...createApplicationDto,
+        initiative: { connect: { id: initiativeId } },
+        applier: { connect: { id: applierId } },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    return application.id;
   }
 }
