@@ -16,7 +16,7 @@ export class InitiativesService {
     const initiatives = await this.prisma.initiative.findMany({
       select: {
         id: true,
-        description: true,
+        title: true,
         RoleToInitiative: {
           select: {
             role: {

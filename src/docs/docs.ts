@@ -1,9 +1,10 @@
 import { applyDecorators } from '@nestjs/common';
 import {
+  ApiBadRequestResponse,
   ApiBody,
   ApiConflictResponse,
-  ApiCookieAuth,
   ApiCreatedResponse,
+  ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
@@ -132,5 +133,108 @@ export const DocsCreateApplication = () => {
         },
       },
     }),
+  );
+};
+
+export const DocsRequestVerificationCode = () => {
+  return applyDecorators(
+    ApiOperation({
+      description:
+        'Applies to an initiative, if succeed returns applicationId.',
+    }),
+    ApiConflictResponse({
+      description: 'Conflict',
+      content: {
+        'appliaction/json': {
+          example: {
+            statusCode: '409',
+            message: 'User with the specified email already exists',
+          },
+        },
+      },
+    }),
+    ApiBadRequestResponse({
+      description: 'Bad Request.',
+      content: {
+        'application/json': {
+          example: {
+            statusCode: 400,
+            message: ['email must be an email'],
+            error: 'Bad Request',
+          },
+        },
+      },
+    }),
+    ApiCreatedResponse({
+      description: 'Succesfully created.',
+    }),
+  );
+};
+
+export const DocsVerifyEmail = () => {
+  return applyDecorators(
+    ApiOperation({
+      description:
+        'Verifies email, if succeed gives a token for further registration',
+    }),
+    ApiNotFoundResponse({
+      description: 'Not Found',
+    }),
+    ApiBadRequestResponse({
+      description: 'Bad Request | Incorrect credentials',
+    }),
+    ApiCreatedResponse({
+      description:
+        'Registration token was successfully created and sent via REG_TOKEN cookie',
+    }),
+  );
+};
+
+export const DocsSignup = () => {
+  return applyDecorators(
+    ApiOperation({
+      description: 'Signs up the user using previous gotten REG_TOKEN',
+    }),
+    ApiUnauthorizedResponse({
+      description: 'Unauthorized | REG_TOKEN was not provided',
+    }),
+    ApiCreatedResponse({
+      description: 'Returns userID and sets the JWT to the cookie',
+      schema: {
+        type: 'string',
+        example: 'f278g-f2f83-3f3h58-ghs86',
+      },
+    }),
+  );
+};
+
+export const DocsLogin = () => {
+  return applyDecorators(
+    ApiOperation({
+      description:
+        'Verifies login credentials, if succeed returns JWT Token via USER_TOKEN Cookie and userID',
+    }),
+    ApiNotFoundResponse({
+      description: 'Not Found | Incorrect data credentials',
+    }),
+    ApiCreatedResponse({
+      description: 'Returns userID and sets the JWT to the cookie',
+      schema: {
+        type: 'string',
+        example: 'f278g-f2f83-3f3h58-ghs86',
+      },
+    }),
+  );
+};
+
+export const DocsUpdateUser = () => {
+  return applyDecorators(
+    ApiOperation({
+      description: 'Updates available user fields',
+    }),
+    ApiForbiddenResponse({
+      description: 'Not allowed to modify not your own data',
+    }),
+    ApiNotFoundResponse(),
   );
 };

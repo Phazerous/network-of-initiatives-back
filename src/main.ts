@@ -11,6 +11,11 @@ async function bootstrap() {
   app.use(cookieParser());
   dotenv.config();
 
+  app.enableCors({
+    origin: ['http://localhost:3001'],
+    credentials: true,
+  });
+
   app.setGlobalPrefix('api');
   app.useGlobalPipes(
     new ValidationPipe({

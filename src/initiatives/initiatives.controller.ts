@@ -41,7 +41,7 @@ export class InitiativesController {
   @Get(':initiativeId/full')
   @DocsGetInitiative()
   async getInitiativeById(@Param('initiativeId') initiativeId: string) {
-    return await this.initiativeService.getInitiativeShortById(initiativeId);
+    return await this.initiativeService.getInitiativeById(initiativeId);
   }
 
   @Post('new')
