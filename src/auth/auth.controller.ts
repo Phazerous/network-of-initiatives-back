@@ -5,6 +5,7 @@ import {
   ValidationPipe,
   UsePipes,
   UseGuards,
+  Get,
   Res,
   Request,
 } from '@nestjs/common';
@@ -17,11 +18,12 @@ import {
   DocsVerifyEmail,
 } from 'src/docs/docs';
 import { VerifyEmailDto } from 'src/dtos/verify-email.dto';
-import { Response, response } from 'express';
+import { Response } from 'express';
 import { JwtEmailVerificationGuard } from './jwt-verification.guard';
 import { CreateUserDto } from 'src/dtos/create-user.dto';
 import { UsersService } from 'src/users/users.service';
 import LoginDto from 'src/dtos/login.dto';
+import { ApiProperty } from '@nestjs/swagger';
 
 @Controller('auth')
 export class AuthController {
@@ -98,5 +100,11 @@ export class AuthController {
     });
 
     return userId;
+  }
+
+  @Get('logout')
+  @ApiProperty({ description: 'Clears the user cookie of USER_TOKEN' })
+  async logout(@Res({ passthrough: true }) response: Response) {
+    response.cookie('USER_TOKEN', '');
   }
 }
