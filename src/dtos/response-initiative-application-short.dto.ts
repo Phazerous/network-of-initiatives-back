@@ -10,6 +10,6 @@ export default class ResponseInitiativeApplicationShortDto {
     lastname: string;
   };
 
-  @ApiProperty({ example: 'Rejected' })
-  status: string;
+  @ApiProperty({ example: 2 })
+  status: number;
 }

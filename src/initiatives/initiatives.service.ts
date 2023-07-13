@@ -199,8 +199,6 @@ export class InitiativesService {
 
     const { userId, ...initiative } = record;
 
-    console.log(initiative);
-
     return initiative;
   }
 

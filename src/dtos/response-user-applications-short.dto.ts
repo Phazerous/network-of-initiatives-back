@@ -9,6 +9,6 @@ export default class ResponseUserApplicationShort {
     title: string;
   };
 
-  @ApiProperty({ example: 'Rejected' })
-  status: string;
+  @ApiProperty({ example: 2 })
+  status: number;
 }

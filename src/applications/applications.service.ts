@@ -79,6 +79,7 @@ export class ApplicationsService {
       },
       select: {
         about: true,
+        status: true,
         applier: {
           select: {
             name: true,

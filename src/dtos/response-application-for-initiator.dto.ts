@@ -4,6 +4,9 @@ export default class ResponseApplicationForInitiatorDto {
   @ApiProperty({ example: 'Passionated developer' })
   about: string;
 
+  @ApiProperty({ example: 1 })
+  status: number;
+
   @ApiProperty({
     example: {
       name: 'Nikita',
