@@ -47,6 +47,7 @@ export class UsersService {
       select: {
         name: true,
         lastname: true,
+        email: true,
         university: true,
         location: true,
         contact: true,

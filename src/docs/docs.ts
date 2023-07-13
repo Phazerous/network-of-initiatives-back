@@ -11,11 +11,18 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { CreateInitiativeDto } from 'src/dtos/create-initiative.dto';
+import ResponseApplicationForApplierDto from 'src/dtos/response-application-for-applier.dto';
+import ResponseApplicationForInitiatorDto from 'src/dtos/response-application-for-initiator.dto';
 import { ResponseGetInitiativeDto } from 'src/dtos/response-get-initiative.dto';
 import { ResponseInitiativeShortDto } from 'src/dtos/response-initiative-short.dto';
+import ResponseInitaitiveStatusDto from 'src/dtos/response-initiative-status.dto';
 import { ResponseInitiativesShortDto } from 'src/dtos/response-initiatives-short.dto';
+import ResponseModeratorInitiativesDto from 'src/dtos/response-moderator-initiatives';
 import { ResponseNotFoundDto } from 'src/dtos/response-not-found.dto';
 import { ResponseUnauthorized } from 'src/dtos/response-unauthorized.dot';
+import ResponseUserApplicationShort from 'src/dtos/response-user-applications-short.dto';
+import ResponseUserInitiativesShort from 'src/dtos/response-user-initiatives-short';
+import ResponseUserProfileDto from 'src/dtos/response-user-profile.dto';
 
 const NotFoundResponse = () => {
   ApiNotFoundResponse({
@@ -236,5 +243,151 @@ export const DocsUpdateUser = () => {
       description: 'Not allowed to modify not your own data',
     }),
     ApiNotFoundResponse(),
+  );
+};
+
+export const DocsUserInitiativesShort = () => {
+  return applyDecorators(
+    ApiOperation({
+      description: 'Recieves the initiatives that user has ever created',
+    }),
+    ApiNotFoundResponse(),
+    ApiForbiddenResponse({
+      description: 'Not allowed to take other user data',
+    }),
+    ApiOkResponse({
+      description: 'Succesfully returns an array of initiatives',
+      type: ResponseUserInitiativesShort,
+      isArray: true,
+    }),
+  );
+};
+
+export const DocsUserApplicationsShort = () => {
+  return applyDecorators(
+    ApiOperation({
+      description: 'Receives the user applications',
+    }),
+    ApiNotFoundResponse(),
+    ApiForbiddenResponse({
+      description: 'Not allowd to take other user data',
+    }),
+    ApiOkResponse({
+      description: 'Succesfully returns an array of applications',
+      type: ResponseUserApplicationShort,
+      isArray: true,
+    }),
+  );
+};
+
+export const DocsInitiativeApplicationsShort = () => {
+  return applyDecorators(
+    ApiOperation({
+      description: 'Receives the application for specified initiative',
+    }),
+    ApiNotFoundResponse(),
+    ApiForbiddenResponse({
+      description: 'Not allowd to take other user data',
+    }),
+    ApiOkResponse({
+      description: 'Succesfully returns an array of applications',
+      type: ResponseInitiativeShortDto,
+      isArray: true,
+    }),
+  );
+};
+
+export const DocsModeratorInitiatives = () => {
+  return applyDecorators(
+    ApiOperation({
+      description: `Recieves the application that should be handled by moderator`,
+    }),
+    ApiOkResponse({
+      description: 'Returns initiatives to be handled',
+      type: ResponseModeratorInitiativesDto,
+      isArray: true,
+    }),
+  );
+};
+
+export const DocsInitiativeStatus = () => {
+  return applyDecorators(
+    ApiOperation({
+      description: `Recieves the initiative status for an initiator`,
+    }),
+    ApiOkResponse({
+      description: 'Success',
+      type: ResponseInitaitiveStatusDto,
+    }),
+  );
+};
+
+export const DocsUpdateInitiativeStatus = () => {
+  return applyDecorators(
+    ApiOperation({
+      description: `Updates status for the specified initiative`,
+    }),
+    ApiCreatedResponse({
+      description: 'Success, status has been changed',
+    }),
+  );
+};
+
+export const DocsUserProfile = () => {
+  return applyDecorators(
+    ApiOperation({
+      description: `Receives the user profile credentials`,
+    }),
+    ApiOkResponse({
+      description: 'OK',
+      type: ResponseUserProfileDto,
+    }),
+  );
+};
+
+export const DocsUpdateUserProfile = () => {
+  return applyDecorators(
+    ApiOperation({
+      description: `Updates the user profile credentials`,
+    }),
+    ApiCreatedResponse({
+      description: 'Data succesfully changed',
+      type: ResponseUserProfileDto,
+    }),
+  );
+};
+
+export const DocsApplicationForApplier = () => {
+  return applyDecorators(
+    ApiOperation({
+      description: `Receives the application for an applier`,
+    }),
+    ApiOkResponse({
+      description: 'Data succesfully received',
+      type: ResponseApplicationForApplierDto,
+    }),
+  );
+};
+
+export const DocsApplicationRespond = () => {
+  return applyDecorators(
+    ApiOperation({
+      description: `Updates the statues of an application`,
+    }),
+    ApiCreatedResponse({
+      description: 'Data succesfully changed',
+    }),
+  );
+};
+
+export const DocsApplicationForInitiator = () => {
+  return applyDecorators(
+    ApiOperation({
+      description: `Receives the application for an initiator`,
+    }),
+    ApiOkResponse({
+      description: 'Data succesfully received',
+      type: ResponseApplicationForInitiatorDto,
+    }),
   );
 };

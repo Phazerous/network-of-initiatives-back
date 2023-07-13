@@ -4,8 +4,10 @@ import {
   NotFoundException,
   ForbiddenException,
 } from '@nestjs/common';
+import UserAuthProps from 'src/auth/user-auth.interface';
 import CreateApplicationDto from 'src/dtos/create-application.dto';
 import { CreateInitiativeDto } from 'src/dtos/create-initiative.dto';
+import RespondInitiativeDto from 'src/dtos/respond-initiative-dto';
 import { PrismaService } from 'src/prisma.service';
 
 @Injectable()
@@ -14,6 +16,9 @@ export class InitiativesService {
 
   async getInitiativesShort() {
     const initiatives = await this.prisma.initiative.findMany({
+      where: {
+        status: 1,
+      },
       select: {
         id: true,
         title: true,
@@ -155,5 +160,77 @@ export class InitiativesService {
     });
 
     return application.id;
+  }
+
+  async getUserInitiativesShort(requestedUserId: string, user: UserAuthProps) {
+    if (!(requestedUserId === user.userId || user.isAdmin))
+      throw new ForbiddenException();
+
+    const initiatives = await this.prisma.initiative.findMany({
+      where: {
+        userId: requestedUserId,
+      },
+      select: {
+        id: true,
+        title: true,
+        status: true,
+      },
+    });
+
+    return initiatives;
+  }
+
+  async getInitiativeStatus(initiativeId: string, user: UserAuthProps) {
+    const record = await this.prisma.initiative.findUnique({
+      where: {
+        id: initiativeId,
+      },
+      select: {
+        id: true,
+        status: true,
+        moderatorComment: true,
+        title: true,
+        userId: true,
+      },
+    });
+
+    if (!(record.userId === user.userId || user.isAdmin))
+      throw new ForbiddenException();
+
+    const { userId, ...initiative } = record;
+
+    console.log(initiative);
+
+    return initiative;
+  }
+
+  async getInitiativesToModerate() {
+    const initiatives = await this.prisma.initiative.findMany({
+      where: {
+        status: 0,
+      },
+      select: {
+        id: true,
+        title: true,
+      },
+    });
+
+    return initiatives;
+  }
+
+  async respondInitiative(
+    initiativeId: string,
+    respondInitiativeDto: RespondInitiativeDto,
+  ) {
+    const initiative = await this.prisma.initiative.update({
+      where: {
+        id: initiativeId,
+      },
+      data: {
+        ...respondInitiativeDto,
+      },
+    });
+
+    return;
   }
 }

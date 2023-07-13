@@ -5,9 +5,12 @@ import {
   Param,
   Post,
   Request,
+  UnauthorizedException,
   UseGuards,
+  Patch,
   UsePipes,
   ValidationPipe,
+  ForbiddenException,
 } from '@nestjs/common';
 import { InitiativesService } from './initiatives.service';
 import { CreateInitiativeDto } from 'src/dtos/create-initiative.dto';
@@ -20,11 +23,29 @@ import {
   DocsGetInitiative,
   DocsGetInitiativeShort,
   DocsGetInitiatives,
+  DocsInitiativeApplicationsShort,
+  DocsInitiativeStatus,
+  DocsModeratorInitiatives,
+  DocsUpdateInitiativeStatus,
 } from 'src/docs/docs';
+import { ApplicationsService } from 'src/applications/applications.service';
+import RespondInitiativeDto from 'src/dtos/respond-initiative-dto';
 
 @Controller('initiatives')
 export class InitiativesController {
-  constructor(private initiativeService: InitiativesService) {}
+  constructor(
+    private initiativeService: InitiativesService,
+    private applicationService: ApplicationsService,
+  ) {}
+
+  @Get('mod')
+  @UseGuards(JwtAuthGuard)
+  @DocsModeratorInitiatives()
+  async getInitiativesToModerate(@Request() req: any) {
+    if (!req.user.isAdmin) throw new UnauthorizedException();
+
+    return await this.initiativeService.getInitiativesToModerate();
+  }
 
   @Get()
   @DocsGetInitiatives()
@@ -42,6 +63,18 @@ export class InitiativesController {
   @DocsGetInitiative()
   async getInitiativeById(@Param('initiativeId') initiativeId: string) {
     return await this.initiativeService.getInitiativeById(initiativeId);
+  }
+
+  @Get(':initiativeId/status')
+  @DocsInitiativeStatus()
+  @UseGuards(JwtAuthGuard)
+  async getInitiativeStatus(
+    @Param('initiativeId') initiativeId: string,
+    @Request() req: any,
+  ) {
+    const user = req.user as UserAuthProps;
+
+    return await this.initiativeService.getInitiativeStatus(initiativeId, user);
   }
 
   @Post('new')
@@ -75,6 +108,38 @@ export class InitiativesController {
       user.userId,
       initiativeId,
       createApplicationDto,
+    );
+  }
+
+  @Get(':initiativeId/applications')
+  @UseGuards(JwtAuthGuard)
+  @DocsInitiativeApplicationsShort()
+  async getInitiativeApplications(
+    @Param('initiativeId') initiativeId: string,
+    @Request() req: any,
+  ) {
+    const user = req.user as UserAuthProps;
+
+    return await this.applicationService.getInitiativeApplicationsShort(
+      initiativeId,
+      user,
+    );
+  }
+
+  @Patch(':initiativeId')
+  @UseGuards(JwtAuthGuard)
+  @UsePipes(new ValidationPipe())
+  @DocsUpdateInitiativeStatus()
+  async respondToInitiative(
+    @Param('initiativeId') initiativeId: string,
+    @Body() respondInitiativeDto: RespondInitiativeDto,
+    @Request() req: any,
+  ) {
+    if (!req.user.isAdmin) throw new ForbiddenException();
+
+    await this.initiativeService.respondInitiative(
+      initiativeId,
+      respondInitiativeDto,
     );
   }
 }
